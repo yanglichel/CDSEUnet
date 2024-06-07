@@ -171,14 +171,4 @@ if __name__ == '__main__':
     print(out.shape)
 
 
-    # x1=torch.randn(4,32,256,256).to(device)
-    # x2=torch.randn(4,32,256,256).to(device)
-    # se=doubleSE_Block(x1.shape[1]).to(device)
-    # y2=se(x1,x2)
-    # print(y2.shape)
-
-    # x1 = torch.randn(4, 32, 256, 256).to(device)
-    # se = SE_Block( ).to(device)
-    # y2 = se(x1)
-    # print(y2.shape)
-
+ 
