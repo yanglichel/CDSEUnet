@@ -20,13 +20,21 @@ class Conv_Block(nn.Module):
     def __init__(self,in_channel,out_channel):
         super(Conv_Block, self).__init__()
         self.layer=nn.Sequential(
-            nn.Conv2d(in_channel,out_channel,3,1,1,padding_mode='reflect',bias=False),
+            nn.Conv2d(in_channel, out_channel, 1, 1, 1, padding_mode='reflect', bias=False),
             nn.BatchNorm2d(out_channel),
-            nn.Dropout2d(0.3),
+            nn.Dropout2d(0.1),
+            nn.LeakyReLU(),
+            nn.Conv2d(out_channel,out_channel,3,1,1,padding_mode='reflect',bias=False),
+            nn.BatchNorm2d(out_channel),
+            nn.Dropout2d(0.1),
+            nn.LeakyReLU(),
+            nn.Conv2d(out_channel, out_channel, 3, 1, 0, padding_mode='reflect', bias=False),
+            nn.BatchNorm2d(out_channel),
+            nn.Dropout2d(0.1),
             nn.LeakyReLU(),
             nn.Conv2d(out_channel, out_channel, 3, 1, 1, padding_mode='reflect', bias=False),
             nn.BatchNorm2d(out_channel),
-            nn.Dropout2d(0.3),
+            nn.Dropout2d(0.1),
             nn.LeakyReLU()
         )
     def forward(self,x):
