@@ -20,21 +20,13 @@ class Conv_Block(nn.Module):
     def __init__(self,in_channel,out_channel):
         super(Conv_Block, self).__init__()
         self.layer=nn.Sequential(
-            nn.Conv2d(in_channel, out_channel, 1, 1, 1, padding_mode='reflect', bias=False),
+            nn.Conv2d(in_channel,out_channel,3,1,1,padding_mode='reflect',bias=False),
             nn.BatchNorm2d(out_channel),
-            nn.Dropout2d(0.1),
-            nn.LeakyReLU(),
-            nn.Conv2d(out_channel,out_channel,3,1,1,padding_mode='reflect',bias=False),
-            nn.BatchNorm2d(out_channel),
-            nn.Dropout2d(0.1),
-            nn.LeakyReLU(),
-            nn.Conv2d(out_channel, out_channel, 3, 1, 0, padding_mode='reflect', bias=False),
-            nn.BatchNorm2d(out_channel),
-            nn.Dropout2d(0.1),
+            nn.Dropout2d(0.3),
             nn.LeakyReLU(),
             nn.Conv2d(out_channel, out_channel, 3, 1, 1, padding_mode='reflect', bias=False),
             nn.BatchNorm2d(out_channel),
-            nn.Dropout2d(0.1),
+            nn.Dropout2d(0.3),
             nn.LeakyReLU()
         )
     def forward(self,x):
@@ -91,9 +83,16 @@ class UNet(nn.Module):
         self.Th=nn.Sigmoid()
 
         self.se1 = doubleSE_Block(32)
+        self.sc1 = Conv_Block(64, 64)
+
         self.se2 = doubleSE_Block(64)
+        self.sc2 = Conv_Block(128, 128)
+
         self.se3 = doubleSE_Block(128)
+        self.sc3 = Conv_Block(256, 256)
+
         self.se4 = doubleSE_Block(256)
+        self.sc4 = Conv_Block(512, 512)
 
 
     def forward(self,x):
@@ -105,19 +104,25 @@ class UNet(nn.Module):
         R11=  self.c1(x1)
         R12 = self.c1(x2)
         R1 = self.se1(R11,R12)
+        R1 = self.sc1(R1)
 
         R21 = self.c2(self.d1(R11))
         R22 = self.c2(self.d1(R12))
         R2 = self.se2(R21, R22)
+        R2 = self.sc2(R2)
 
         R31 = self.c3(self.d2(R21))
         R32 = self.c3(self.d2(R22))
         R3 = self.se3(R31, R32)
+        R3 = self.sc3(R3)
 
 
         R41 = self.c4(self.d3(R31))
         R42 = self.c4(self.d3(R32))
         R4 = self.se4(R41, R42)
+        R4 = self.sc4(R4)
+
+        print("aaaa:",R4.shape)
 
         R5 = self.c5(self.d4(R4))
 
@@ -169,14 +174,5 @@ class doubleSE_Block(nn.Module):  # Squeeze-and-Excitation block
         return out
 
 
-if __name__ == '__main__':
-    device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-    print(device)
-    x=torch.randn(4,2,256,256).to(device)
-    #net=UNet(3)
-    net=UNet().cuda()
-    out=net(x)
-    print(out.shape)
 
 
- 
